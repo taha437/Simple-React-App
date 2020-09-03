@@ -20,52 +20,6 @@ const SigninFormComponent = props => {
   const { Title } = Typography;
 
   return (
-    // <Form onSubmit={handleSubmit} className={style.signinForm}>
-    //   <h1 className={style.authHeader}>Sign in</h1>
-    //   <Form.Item>
-    //     {getFieldDecorator("email", {
-    //       rules: [
-    //         { required: true, message: "Please input your email!" },
-    //         { type: "email", message: "The input is not valid E-mail!" }
-    //       ]
-    //     })(
-    //       <Input
-    //         prefix={<Icon type="mail" style={{ color: "rgba(0,0,0,.25)" }} />}
-    //         placeholder="email"
-    //       />
-    //     )}
-    //   </Form.Item>
-    //   <Form.Item
-    //     {...props.isError && {
-    //       help: props.errorMessage,
-    //       validateStatus: "error"
-    //     }}
-    //   >
-    //     {getFieldDecorator("password", {
-    //       rules: [{ required: true, message: "Please input your password!" }]
-    //     })(
-    //       <Input
-    //         prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
-    //         type="password"
-    //         placeholder="Password"
-    //       />
-    //     )}
-    //   </Form.Item>
-    //   <Form.Item>
-    //     <Button
-    //       type="primary"
-    //       loading={props.isLoading}
-    //       style={{ width: "100%" }}
-    //       htmlType="submit"
-    //     >
-    //       Sign in
-    //     </Button>
-    //     <div className={style.singupLinks}>
-    //       <Link to="/signup">Create accaunt</Link> or{" "}
-    //       <Link to="/restore-password">Forgot password</Link>
-    //     </div>
-    //   </Form.Item>
-    // </Form>
     <Row>
       <Col span={12} style={{ marginTop: 60 }}>
         <Title
@@ -93,7 +47,12 @@ const SigninFormComponent = props => {
               marginLeft: 60
             }}
           >
-            <Input placeholder="Email" />
+            {getFieldDecorator("email", {
+              rules: [
+                { required: true, message: "Please input your email!" },
+                { type: "email", message: "The input is not valid E-mail!" }
+              ]
+            })(<Input placeholder="Email" />)}
           </Form.Item>
           <Form.Item
             name="password"
@@ -102,11 +61,19 @@ const SigninFormComponent = props => {
               width: "70%",
               marginLeft: 60
             }}
+            {...(props.isError && {
+              help: props.errorMessage,
+              validateStatus: "error"
+            })}
           >
-            <Input type="password" placeholder="Password" />
+            {getFieldDecorator("password", {
+              rules: [
+                { required: true, message: "Please input your password!" }
+              ]
+            })(<Input type="password" placeholder="Password" />)}
           </Form.Item>
           <div className={style.forgotPassword}>
-            <a href="">Forgot password</a>
+            <a href="/restore-password">Forgot password</a>
           </div>
           <Form.Item>
             <Button
