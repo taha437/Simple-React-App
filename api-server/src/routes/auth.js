@@ -16,6 +16,11 @@ router.post(
   Validate.prepare(authSchemas.signup),
   AuthController.signup
 );
+router.put(
+  "/auth/set-password",
+  Validate.prepare(authSchemas.setPassword),
+  AuthController.setPassword
+);
 router.post(
   "/auth/refresh-tokens",
   Validate.prepare(authSchemas.refreshTokens),

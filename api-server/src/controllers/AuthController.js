@@ -7,6 +7,7 @@ import AppError from "../exeptions/AppError";
 import MailService from "../services/MailService";
 import randomize from "../utils/randomize";
 import config from "../config/app";
+import crypto from 'crypto';
 
 class AuthController {
   @TryCatchErrorDecorator
@@ -50,29 +51,50 @@ class AuthController {
       throw new ClientError("This email is already registered", 409);
     }
 
+    const passwordSetToken = crypto.randomBytes(20).toString('hex');
+    const passwordSetTokenExpires = Date.now() + 3600000;
     const password = randomize.generateString(12);
 
     const user = new UserModel({
       name: req.body.name,
       email: req.body.email,
-      password: await PasswordService.hashPassword(password)
+      password: await PasswordService.hashPassword(password),
+      email_verified: false,
+      passwordSetToken,
+      passwordSetTokenExpires
     });
 
-    await user.save();
+    // await user.save();
 
     MailService.sendWithTemplate(
       {
-        to: user.email,
-        subject: "Thanks for registering, your password is inside"
+        to: req.body.email,
+        subject: "Thanks for registering"
       },
       {
         template: "singup",
         data: {
-          email: user.email,
-          password
+          link: `${config.frontendHost}/setpassword/${passwordSetToken}`
         }
       }
     );
+
+    res.json({ status: "success" });
+  }
+
+  @TryCatchErrorDecorator
+  static async setPassword(req, res) {
+    const user = await UserModel.findOne({ passwordSetToken: req.body.token });
+    if (!user) {
+      throw new ClientError("Invalid Token value", 401);
+    } else if (user.passwordSetTokenExpires < Date.now()) {
+      throw new ClientError("Token has expired", 401);
+    }
+
+    const passwordHash = await PasswordService.hashPassword(req.body.password);
+    user.password = passwordHash;
+    user.email_verified = true;
+    await user.save();
 
     res.json({ status: "success" });
   }

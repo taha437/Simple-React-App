@@ -44,6 +44,25 @@ const signup = {
   }
 };
 
+const setPassword = {
+  type: "object",
+  required: ["password", "token"],
+  properties: {
+    password: {
+      type: "string",
+      errorMessage: {
+        type: "Field 'password' should be a string"
+      }
+    },
+    token: {
+      type: "string",
+      errorMessage: {
+        type: "Field 'token' should be a string"
+      }
+    }
+  }
+};
+
 const refreshTokens = {
   type: "object",
   required: ["refreshToken"],
@@ -90,6 +109,7 @@ const confirmRestorePassword = {
 export default {
   signin,
   signup,
+  setPassword,
   refreshTokens,
   restorePassword,
   confirmRestorePassword

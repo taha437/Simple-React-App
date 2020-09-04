@@ -27,6 +27,18 @@ const UserSchema = new Schema(
       unique: true,
       trim: true
     },
+    passwordSetToken: {
+      type: String,
+      required: true,
+    },
+    passwordSetTokenExpires: {
+      type: Number,
+      required: true,
+    },
+    email_verified: {
+      type: Boolean,
+      required: true,
+    },
     refreshTokens: [refreshTokens]
   },
   {

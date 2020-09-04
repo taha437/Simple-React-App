@@ -1,5 +1,5 @@
 import { MailComposer as KamilMailcomposer } from "kamil-mailcomposer";
-import mailgunModule from "mailgun-js";
+import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
 import ejs from "ejs-promise";
@@ -58,20 +58,20 @@ const compileTemplate = async (template, data, options = {}) => {
 /* eslint no-param-reassign: ["error", { "props": false }] */
 const send = async data => {
   try {
-    const mailgun = mailgunModule({
-      apiKey: config.mail.apiKey,
-      domain: config.mail.domain
-    });
-    console.log(mailgun,'mailgun ----------------------------')
-    if (!data.from) {
-      data.from = config.mail.from;
-    }
-
     if (config.app.isDev) {
-      return saveEmailInFile(data);
+      return await saveEmailInFile(data);
     }
 
-    return await mailgun.messages().send(data);
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: `${config.mail.from}`,
+        pass: `${config.mail.pass}`,
+      },
+    });
+
+    return await transporter.sendMail(data);
+
   } catch (err) {
     logger.error(err.message, { type: "EMAIL_ERROR", data });
 
