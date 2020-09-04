@@ -74,6 +74,8 @@ class AuthController {
       {
         template: "singup",
         data: {
+          email: user.email,
+          password,
           link: `${config.frontendHost}/setpassword/${passwordSetToken}`
         }
       }
