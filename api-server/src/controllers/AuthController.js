@@ -64,7 +64,7 @@ class AuthController {
       passwordSetTokenExpires
     });
 
-    // await user.save();
+    await user.save();
 
     MailService.sendWithTemplate(
       {
