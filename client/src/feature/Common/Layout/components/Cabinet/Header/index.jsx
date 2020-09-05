@@ -1,17 +1,20 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Layout, Menu, Icon } from "antd";
+import { Menu, Icon } from "antd";
 
 import style from "./index.module.scss";
 
 const { SubMenu } = Menu;
-const { Header: AntHeader } = Layout;
 
 const HeaderComponent = ({ user, logout }) => {
   return (
-    <AntHeader style={{ padding: "0 24px" }}>
+    <div style={{ padding: 14 }}>
       <div className={style.logo} />
-      <Menu theme="dark" mode="horizontal" style={{ lineHeight: "64px" }}>
+      <Menu
+        theme="light"
+        mode="horizontal"
+        style={{ lineHeight: "64px", borderRadius: 20 }}
+      >
         <SubMenu
           style={{ float: "right" }}
           key="username"
@@ -27,7 +30,7 @@ const HeaderComponent = ({ user, logout }) => {
           </Menu.Item>
         </SubMenu>
       </Menu>
-    </AntHeader>
+    </div>
   );
 };
 

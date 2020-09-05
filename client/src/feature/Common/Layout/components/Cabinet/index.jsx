@@ -20,8 +20,9 @@ const CabinetComponent = ({ children, menuList, user, logout }) => {
             style={{
               background: "#fff",
               padding: 24,
-              margin: "24px 0 0",
-              minHeight: 300
+              margin: "20 30px 0",
+              minHeight: 300,
+              borderRadius: 30
             }}
           >
             {children}

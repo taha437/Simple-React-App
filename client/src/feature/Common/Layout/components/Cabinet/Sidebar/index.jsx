@@ -7,11 +7,11 @@ const { Sider } = Layout;
 
 const SidebarComponent = props => {
   return (
-    <Sider width={200} style={{ background: "#fff" }}>
+    <Sider width={200} style={{ backgroundColor: "white", borderRadius: 20 }}>
       <Menu
-        mode="inline"
+        mode="vertical-left"
         defaultSelectedKeys={["0"]}
-        style={{ height: "100%", borderRight: 0 }}
+        style={{ height: "100%", width: "100%", borderRadius: 20 }}
       >
         {props.menuList.map((item, i) => {
           return (
