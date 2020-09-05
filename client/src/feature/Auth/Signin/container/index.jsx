@@ -5,7 +5,6 @@ import style from "./index.module.scss";
 import { connect } from "react-redux";
 import { signinRequest } from "../actions";
 import { withRouter } from "react-router-dom";
-import { Row, Col } from "antd";
 
 const Signin = props => {
   useEffect(() => {
