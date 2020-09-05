@@ -21,11 +21,15 @@ export const HomeContainer = () => {
             </Typography>
           </Col>
         </Row>
-      </div>
-      <div className={style.animate}>
-        <object type="image/svg+xml" data={animate} viewbox="0 0 1200 1200">
-          svg-animation
-        </object>
+        <Row>
+          <Col span={40} style={{marginTop:80}}>
+            <div className={style.animate}>
+              <object type="image/svg+xml" data={animate} viewbox="0 0 1200 1200">
+                svg-animation
+              </object>
+            </div>
+          </Col>
+        </Row>
       </div>
     </div>
   );
