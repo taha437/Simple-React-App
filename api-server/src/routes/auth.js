@@ -22,6 +22,16 @@ router.put(
   AuthController.setPassword
 );
 router.post(
+  "/auth/check-password-token-validity",
+  Validate.prepare(authSchemas.checkPasswordTokenValidity),
+  AuthController.checkPasswordTokenValidity
+);
+router.put(
+  "/auth/renew-password-token",
+  Validate.prepare(authSchemas.renewPasswordToken),
+  AuthController.renewPasswordToken
+)
+router.post(
   "/auth/refresh-tokens",
   Validate.prepare(authSchemas.refreshTokens),
   AuthController.refreshTokens

@@ -1,80 +1,146 @@
-import React, { useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
-import style from "./index.module.scss";
+import { SetPasswordForm } from "../components/SetpasswordForm";
 import { connect } from "react-redux";
+import {
+  setPasswordRequest,
+  checkTokenValidity,
+  renewToken,
+} from "../actions";
 import { withRouter } from "react-router-dom";
-import { setPasswordRequest } from "../actions";
-import { Row, Col, Typography, Form, Input, Button } from "antd";
+
+import { Row, Col, Typography, Button } from "antd";
 import animate from "../../../../Assets/account-animate.svg";
+import { ReactComponent as ReactLogo } from "../../../../Assets/tick.svg";
 
-const SetPassword = props => {
-  const { Title } = Typography;
+import style from "./index.module.scss";
 
-  const handleSubmit = e => {
-    e.preventDefault();
-  };
-  return (
-    <div className={style.SetPasswordWrapper}>
-      <Row>
-        <Row>
-          <Col span={24}>
-            <object
-              type="image/svg+xml"
-              data={animate}
-              className={style.animate}
-              viewbox="0 0 1200 1200"
-            >
-              svg-animation
-            </object>
-          </Col>
-        </Row>
-        <Row>
-          <Col offset={5} span={24}>
-            <Title level={2}>Please enter your new password</Title>
-          </Col>
-        </Row>
-        <Row>
-          <Form
-            name="set_password"
-            onSubmit={handleSubmit}
-            className={style.setPasswordForm}
-            initialValues={{ remember: true }}
-          >
-            <Form.Item
-              name="password"
-              style={{
-                width: "50%",
-                marginLeft: "190px"
-              }}
-            >
-              <Input type="password" placeholder="Password" />
-            </Form.Item>
-            <Form.Item>
+class SetPassword extends React.Component {
+  state = { loading: true, expiredToken: false };
+
+  componentDidMount() {
+    this.props.checkTokenValidity({ token: this.props.match.params.token });
+  }
+
+  componentDidUpdate() {
+    if ((!this.props.isTokenValid && this.props.tokenValidityErrorStatus !== 401)
+        || this.props.isSuccess) {
+      this.props.history.push("/");
+    }
+  }
+
+  render() {
+    return !this.props.checkingValidity && (
+      <>
+        {this.props.newTokenSent ? (
+          <div className={style.emailSentWrapper}>
+              <Row>
+                <Col span={24}>
+                  <object
+                    type="image/svg+xml"
+                    data={animate}
+                    className={style.animate}
+                    viewbox="0 0 1200 1200"
+                  >
+                    svg-animation
+                </object>
+                </Col>
+              </Row>
+              <Row style={{ marginLeft: "300px" }}>
+                <Col span={2}>
+                  <ReactLogo style={{ width: "20px", height: "20px" }} />
+                </Col>
+                <Col span={22}>
+                  <Typography>Email sent successfully.</Typography>
+                </Col>
+              </Row>
+              <Row style={{ marginTop: "20px", marginLeft: "200px" }}>
+                <Col span={20}>
+                  <Typography>
+                    Please follow the steps as described in email for further
+                    registration.
+                </Typography>
+                </Col>
+              </Row>
               <Button
                 type="primary"
-                loading={props.isLoading}
-                style={{ width: "100%" }}
                 htmlType="submit"
-                onClick={handleSubmit}
+                onClick={() => {
+                  this.props.history.push("/");
+                }}
                 style={{
-                  width: "30%",
-                  marginLeft: "260px"
+                  width: "20%",
+                  marginLeft: "315px",
+                  marginTop: "20px"
                 }}
               >
-                Submit
-              </Button>
-            </Form.Item>
-          </Form>
-        </Row>
-      </Row>
-    </div>
-  );
+                Login
+            </Button>
+            </div>
+          ) : (
+          <div className={style.setPasswordWrapper}>
+            <SetPasswordForm
+                onSubmit={this.props.setPasswordRequest}
+                resendToken={!this.props.isTokenValid && this.props.renewToken}
+                isLoading={this.props.isLoading || this.props.isSendingNewToken}
+                token={this.props.match.params.token}
+                isTokenValid={this.props.isTokenValid}
+                passIsError={this.props.isError}
+                passErrorMessage={this.props.errorMessage}
+                emailIsError={this.props.newTokenSendingFailed}
+                emailErrorMessage={this.props.errorMessageNewToken}
+              />
+          </div>
+        )}
+      </>
+    );
+  }
 };
 
-SetPassword.propTypes = {};
+SetPassword.propTypes = {
+  isLoading: PropTypes.bool.isRequired,
+  isAuth: PropTypes.bool.isRequired,
+  isSuccess: PropTypes.bool.isRequired,
+  isError: PropTypes.bool.isRequired,
+  errorMessage: PropTypes.string.isRequired,
+  setPasswordRequest: PropTypes.func.isRequired,
 
-const mapStateToProps = state => ({});
+  checkingValidity: PropTypes.bool.isRequired,
+  isTokenValid: PropTypes.bool.isRequired,
+  tokenValidityErrorStatus: PropTypes.number.isRequired,
+  checkTokenValidity: PropTypes.func.isRequired,
+
+  isSendingNewToken: PropTypes.bool.isRequired,
+  newTokenSent: PropTypes.bool.isRequired,
+  newTokenSendingFailed: PropTypes.bool.isRequired,
+  errorMessageNewToken: PropTypes.string.isRequired,
+  renewToken: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = state => ({
+  isLoading: state.auth.setPassword.isLoading,
+  isAuth: state.auth.signin.isAuth,
+  isError: state.auth.setPassword.isError,
+  isSuccess: state.auth.setPassword.isSuccess,
+  errorMessage: state.auth.setPassword.errorMessage,
+
+  checkingValidity: state.auth.tokenValidity.isLoading,
+  tokenValidityErrorStatus: state.auth.tokenValidity.errorStatus,
+  isTokenValid: !state.auth.tokenValidity.isError,
+
+  isSendingNewToken: state.auth.renewToken.isProcessing,
+  newTokenSent: state.auth.renewToken.isSuccess,
+  newTokenSendingFailed: state.auth.renewToken.isError,
+  errorMessageNewToken: state.auth.renewToken.errorMessage,
+});
 
 export const SetPasswordContainer = withRouter(
-  connect(mapStateToProps, { setPasswordRequest })(SetPassword)
+  connect(
+    mapStateToProps,
+    {
+      setPasswordRequest,
+      checkTokenValidity,
+      renewToken
+    }
+  )(SetPassword)
 );

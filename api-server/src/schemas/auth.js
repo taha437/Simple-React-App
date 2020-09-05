@@ -50,6 +50,7 @@ const setPassword = {
   properties: {
     password: {
       type: "string",
+      minLength: 8,
       errorMessage: {
         type: "Field 'password' should be a string"
       }
@@ -62,6 +63,32 @@ const setPassword = {
     }
   }
 };
+
+const renewPasswordToken = {
+  type: "object",
+  required: ["token"],
+  properties: {
+    token: {
+      type: "string",
+      errorMessage: {
+        type: "Field 'token' should be a string"
+      }
+    }
+  }
+}
+
+const checkPasswordTokenValidity = {
+  type: "object",
+  required: ["token"],
+  properties: {
+    token: {
+      type: "string",
+      errorMessage: {
+        type: "Field 'token' should be a string"
+      }
+    }
+  }
+}
 
 const refreshTokens = {
   type: "object",
@@ -110,6 +137,8 @@ export default {
   signin,
   signup,
   setPassword,
+  checkPasswordTokenValidity,
+  renewPasswordToken,
   refreshTokens,
   restorePassword,
   confirmRestorePassword

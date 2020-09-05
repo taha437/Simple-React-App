@@ -15,6 +15,8 @@ class AuthController {
     const user = await UserModel.findOne({ email: req.body.email });
     if (!user) {
       throw new ClientError("User not found", 404);
+    } else if (!user.email_verified) {
+      throw new ClientError("Email not verified", 401);
     }
 
     const checkPassword = await PasswordService.checkPassword(
@@ -74,8 +76,6 @@ class AuthController {
       {
         template: "singup",
         data: {
-          email: user.email,
-          password,
           link: `${config.frontendHost}/setpassword/${passwordSetToken}`
         }
       }
@@ -100,6 +100,57 @@ class AuthController {
 
     res.json({ status: "success" });
   }
+
+  @TryCatchErrorDecorator
+  static async renewPasswordToken(req, res) {
+    const user = await UserModel.findOne({ passwordSetToken: req.body.token });
+    if (!user) {
+      throw new ClientError("Email Not Found", 404);
+    }
+    else if (user.email_verified) {
+      throw new ClientError("You have already set your password", 406);
+    }
+    else if (user.passwordSetTokenExpires >= Date.now()) {
+      throw new ClientError("Your token is still valid", 406);
+    }
+    else {
+      const passwordSetToken = crypto.randomBytes(20).toString('hex');
+      user.passwordSetToken = passwordSetToken;
+      user.passwordSetTokenExpires = Date.now() + 3600000;
+
+      await user.save();
+
+      MailService.sendWithTemplate(
+        {
+          to: user.email,
+          subject: "Your New Token"
+        },
+        {
+          template: "singup",
+          data: {
+            link: `${config.frontendHost}/setpassword/${passwordSetToken}`
+          }
+        }
+      );
+      res.json({ status: "success" });
+    }
+  }
+
+  @TryCatchErrorDecorator
+  static async checkPasswordTokenValidity(req, res) {
+    const user = await UserModel.findOne({ passwordSetToken: req.body.token });
+    if (!user) {
+      throw new ClientError("Token not found", 404);
+    }
+    else if (user.email_verified) {
+      throw new ClientError("Token already used", 406);
+    }
+    else if (user.passwordSetTokenExpires < Date.now()) {
+      throw new ClientError("Token has expired", 401);
+    }
+    res.json({ status: "success" });
+  }
+
 
   @TryCatchErrorDecorator
   static async refreshTokens(req, res) {

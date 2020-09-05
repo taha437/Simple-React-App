@@ -1,3 +1,7 @@
-export { setPasswordReducer } from "./reducer";
+export {
+  setPasswordReducer,
+  tokenValidityReducer,
+  renewTokenReducer
+} from "./reducer";
 
 export { SetPasswordContainer } from "./container";
