@@ -29,7 +29,7 @@ export const routes = [
     exact: true
   },
   {
-    path: "/setpassword/:token",
+    path: "/setpassword/:id/:token",
     component: SetPasswordContainer,
     isAuth: false,
     exact: true

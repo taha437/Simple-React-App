@@ -153,6 +153,26 @@ const checkRefreshTokenUser = async (user, token) => {
   }
 };
 
+const createSetPasswordToken = async user => {
+  try {
+    const payload = {
+      id: user._id
+    };
+
+    const options = {
+      algorithm: "HS512",
+      subject: user._id.toString(),
+      expiresIn: config.expireSet
+    };
+
+    const token = await sign(payload, user.password, options);
+
+    return token;
+  } catch (err) {
+    throw new AppError(err.message);
+  }
+};
+
 export default {
   sign,
   createAccessToken,
@@ -163,5 +183,6 @@ export default {
   checkRefreshTokenUser,
   verifyAccessToken,
   createRestorePasswordToken,
-  verifyRestorePasswordToken
+  verifyRestorePasswordToken,
+  createSetPasswordToken
 };

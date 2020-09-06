@@ -16,8 +16,26 @@ import { ReactComponent as ReactLogo } from "../../../../Assets/tick.svg";
 import style from "./index.module.scss";
 
 class SetPassword extends React.Component {
+  state = { passwordsMatched: true };
+
   componentDidMount() {
-    this.props.checkTokenValidity({ token: this.props.match.params.token });
+    const { id, token } = this.props.match.params;
+    this.props.checkTokenValidity({ token: token, id: id });
+  }
+
+  handleSubmit = (values) => {
+    const { id, token } = this.props.match.params;
+    if (values.password != values.confirmPassword) {
+      this.setState({ passwordsMatched: false });
+      return;
+    }
+
+    this.setState({ passwordsMatched: true });
+    if (this.props.isTokenValid) {
+      this.props.setPasswordRequest({ password: values.password, token, id });
+    } else {
+      !this.props.isTokenValid && this.props.renewToken({ token, id });
+    }
   }
 
   componentDidUpdate() {
@@ -77,11 +95,10 @@ class SetPassword extends React.Component {
           </>
         ) : (
           <SetPasswordForm
-            onSubmit={this.props.setPasswordRequest}
-            resendToken={!this.props.isTokenValid && this.props.renewToken}
+            handleSubmit={this.handleSubmit}
             isLoading={this.props.isLoading || this.props.isSendingNewToken}
-            token={this.props.match.params.token}
             isTokenValid={this.props.isTokenValid}
+            passwordsMatched={this.state.passwordsMatched}
             passIsError={this.props.isError}
             passErrorMessage={this.props.errorMessage}
             emailIsError={this.props.newTokenSendingFailed}

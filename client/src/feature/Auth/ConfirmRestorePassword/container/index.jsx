@@ -30,7 +30,6 @@ class ConfirmRestorePassword extends React.Component {
   }
 
   render() {
-    console.log(this.props);
     return (
       <div className={style.confirmRestorePasswordWrapper}>
         <Loader isLoading={this.props.verifyingToken}>

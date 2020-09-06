@@ -46,7 +46,7 @@ const signup = {
 
 const setPassword = {
   type: "object",
-  required: ["password", "token"],
+  required: ["password", "token", "id"],
   properties: {
     password: {
       type: "string",
@@ -60,18 +60,30 @@ const setPassword = {
       errorMessage: {
         type: "Field 'token' should be a string"
       }
+    },
+    id: {
+      type: "string",
+      errorMessage: {
+        type: "Field 'id' should be a string"
+      }
     }
   }
 };
 
 const renewPasswordToken = {
   type: "object",
-  required: ["token"],
+  required: ["token", "id"],
   properties: {
     token: {
       type: "string",
       errorMessage: {
         type: "Field 'token' should be a string"
+      }
+    },
+    id: {
+      type: "string",
+      errorMessage: {
+        type: "Field 'id' should be a string"
       }
     }
   }
@@ -79,12 +91,18 @@ const renewPasswordToken = {
 
 const checkPasswordTokenValidity = {
   type: "object",
-  required: ["token"],
+  required: ["token", "id"],
   properties: {
     token: {
       type: "string",
       errorMessage: {
         type: "Field 'token' should be a string"
+      }
+    },
+    id: {
+      type: "string",
+      errorMessage: {
+        type: "Field 'id' should be a string"
       }
     }
   }

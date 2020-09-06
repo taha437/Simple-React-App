@@ -12,6 +12,7 @@ const expireRefresh = process.env.EXPIRE_TOKEN_REFRESH;
 
 const secretRestore = process.env.SECRET_TOKEN_RESTORE_PASSWORD;
 const expireRestore = process.env.EXPIRE_TOKEN_RESTORE_PASSWORD;
+const expireSet = process.env.EXPIRE_TOKEN_SET_PASSWORD;
 
 const countTokenLimit = process.env.TOKEN_LIMIT_COUNT_DIVICE;
 
@@ -22,5 +23,6 @@ export default {
   expireRefresh,
   countTokenLimit,
   secretRestore,
-  expireRestore
+  expireRestore,
+  expireSet,
 };

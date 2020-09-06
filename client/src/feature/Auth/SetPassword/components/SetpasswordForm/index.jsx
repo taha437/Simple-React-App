@@ -10,12 +10,7 @@ const setPasswordFormComponent = props => {
 
     props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        if (props.isTokenValid) {
-          values.token = props.token;
-          props.onSubmit(values);
-        } else {
-          props.resendToken({ token: props.token });
-        }
+        props.handleSubmit(values);
       }
     });
   };
@@ -46,26 +41,48 @@ const setPasswordFormComponent = props => {
               </h3>
             )}
             {props.isTokenValid && (
-              <Form.Item
-                {...(props.passIsError && {
-                  help: props.passErrorMessage,
-                  validateStatus: "error"
-                })}
-                name="password"
-                rules={[
-                  { required: true, message: "Please enter your Password!" }
-                ]}
-                style={{
-                  width: "60%",
-                  marginLeft: "150px"
-                }}
-              >
-                {getFieldDecorator("password", {
-                  rules: [
-                    { required: true, message: "Please input your password!" }
-                  ]
-                })(<Input type="password" placeholder="Password" />)}
-              </Form.Item>
+              <>
+                <Form.Item
+                  {...(props.passIsError && {
+                    help: props.passErrorMessage,
+                    validateStatus: "error"
+                  })}
+                  name="password"
+                  rules={[
+                    { required: true, message: "Please enter your Password!" }
+                  ]}
+                  style={{
+                    width: "60%",
+                    marginLeft: "150px"
+                  }}
+                >
+                  {getFieldDecorator("password", {
+                    rules: [
+                      { required: true, message: "Please input your password!" }
+                    ]
+                  })(<Input type="password" placeholder="Password" />)}
+                </Form.Item>
+                <Form.Item
+                  {...(!props.passwordsMatched && {
+                    help: "Password do not match",
+                    validateStatus: "error"
+                  })}
+                  name="confirmPassword"
+                  rules={[
+                    { required: true, message: "Please enter your Password again!" }
+                  ]}
+                  style={{
+                    width: "60%",
+                    marginLeft: "150px"
+                  }}
+                >
+                  {getFieldDecorator("confirmPassword", {
+                    rules: [
+                      { required: true, message: "Please input your password again!" }
+                    ]
+                  })(<Input type="password" placeholder="Confirm Password" />)}
+                </Form.Item>
+              </>
             )}
             <Form.Item>
               <Button
