@@ -64,7 +64,7 @@ const createRestorePasswordToken = async user => {
       expiresIn: config.expireRestore
     };
 
-    const token = await sign(payload, config.secretRestore, options);
+    const token = await sign(payload, user.password, options);
 
     return token;
   } catch (err) {
@@ -129,9 +129,9 @@ const verifyAccessToken = async token => {
   }
 };
 
-const verifyRestorePasswordToken = async token => {
+const verifyRestorePasswordToken = async (token, secretKey) => {
   try {
-    const data = await jwt.verify(token, config.secretRestore);
+    const data = await jwt.verify(token, secretKey);
 
     return data;
   } catch (err) {
@@ -153,6 +153,26 @@ const checkRefreshTokenUser = async (user, token) => {
   }
 };
 
+const createSetPasswordToken = async user => {
+  try {
+    const payload = {
+      id: user._id
+    };
+
+    const options = {
+      algorithm: "HS512",
+      subject: user._id.toString(),
+      expiresIn: config.expireSet
+    };
+
+    const token = await sign(payload, user.password, options);
+
+    return token;
+  } catch (err) {
+    throw new AppError(err.message);
+  }
+};
+
 export default {
   sign,
   createAccessToken,
@@ -163,5 +183,6 @@ export default {
   checkRefreshTokenUser,
   verifyAccessToken,
   createRestorePasswordToken,
-  verifyRestorePasswordToken
+  verifyRestorePasswordToken,
+  createSetPasswordToken
 };

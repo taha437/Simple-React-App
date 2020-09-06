@@ -16,10 +16,26 @@ import { ReactComponent as ReactLogo } from "../../../../Assets/tick.svg";
 import style from "./index.module.scss";
 
 class SetPassword extends React.Component {
-  state = { loading: true, expiredToken: false };
+  state = { passwordsMatched: true };
 
   componentDidMount() {
-    this.props.checkTokenValidity({ token: this.props.match.params.token });
+    const { id, token } = this.props.match.params;
+    this.props.checkTokenValidity({ token: token, id: id });
+  }
+
+  handleSubmit = (values) => {
+    const { id, token } = this.props.match.params;
+    if (values.password != values.confirmPassword) {
+      this.setState({ passwordsMatched: false });
+      return;
+    }
+
+    this.setState({ passwordsMatched: true });
+    if (this.props.isTokenValid) {
+      this.props.setPasswordRequest({ password: values.password, token, id });
+    } else {
+      !this.props.isTokenValid && this.props.renewToken({ token, id });
+    }
   }
 
   componentDidUpdate() {
@@ -31,68 +47,65 @@ class SetPassword extends React.Component {
 
   render() {
     return !this.props.checkingValidity && (
-      <>
+      <div className={style.setPasswordWrapper}>
         {this.props.newTokenSent ? (
-          <div className={style.emailSentWrapper}>
-              <Row>
-                <Col span={24}>
-                  <object
-                    type="image/svg+xml"
-                    data={animate}
-                    className={style.animate}
-                    viewbox="0 0 1200 1200"
-                  >
-                    svg-animation
-                </object>
-                </Col>
-              </Row>
-              <Row style={{ marginLeft: "300px" }}>
-                <Col span={2}>
-                  <ReactLogo style={{ width: "20px", height: "20px" }} />
-                </Col>
-                <Col span={22}>
-                  <Typography>Email sent successfully.</Typography>
-                </Col>
-              </Row>
-              <Row style={{ marginTop: "20px", marginLeft: "200px" }}>
-                <Col span={20}>
-                  <Typography>
-                    Please follow the steps as described in email for further
-                    registration.
-                </Typography>
-                </Col>
-              </Row>
-              <Button
-                type="primary"
-                htmlType="submit"
-                onClick={() => {
-                  this.props.history.push("/");
-                }}
-                style={{
-                  width: "20%",
-                  marginLeft: "315px",
-                  marginTop: "20px"
-                }}
-              >
-                Login
+          <>
+            <Row>
+              <Col span={24}>
+                <object
+                  type="image/svg+xml"
+                  data={animate}
+                  className={style.animate}
+                  viewbox="0 0 1200 1200"
+                >
+                  svg-animation
+              </object>
+              </Col>
+            </Row>
+            <Row style={{ marginLeft: "300px" }}>
+              <Col span={2}>
+                <ReactLogo style={{ width: "20px", height: "20px" }} />
+              </Col>
+              <Col span={22}>
+                <Typography>Email sent successfully.</Typography>
+              </Col>
+            </Row>
+            <Row style={{ marginTop: "20px", marginLeft: "200px" }}>
+              <Col span={20}>
+                <Typography>
+                  Please follow the steps as described in email for further
+                  registration.
+              </Typography>
+              </Col>
+            </Row>
+            <Button
+              type="primary"
+              htmlType="submit"
+              onClick={() => {
+                this.props.history.push("/");
+              }}
+              style={{
+                width: "20%",
+                marginLeft: "315px",
+                marginTop: "20px"
+              }}
+            >
+              Login
             </Button>
-            </div>
-          ) : (
-          <div className={style.setPasswordWrapper}>
-            <SetPasswordForm
-                onSubmit={this.props.setPasswordRequest}
-                resendToken={!this.props.isTokenValid && this.props.renewToken}
-                isLoading={this.props.isLoading || this.props.isSendingNewToken}
-                token={this.props.match.params.token}
-                isTokenValid={this.props.isTokenValid}
-                passIsError={this.props.isError}
-                passErrorMessage={this.props.errorMessage}
-                emailIsError={this.props.newTokenSendingFailed}
-                emailErrorMessage={this.props.errorMessageNewToken}
-              />
-          </div>
+          </>
+        ) : (
+          <SetPasswordForm
+            handleSubmit={this.handleSubmit}
+            isLoading={this.props.isLoading || this.props.isSendingNewToken}
+            isTokenValid={this.props.isTokenValid}
+            passwordsMatched={this.state.passwordsMatched}
+            passIsError={this.props.isError}
+            passErrorMessage={this.props.errorMessage}
+            emailIsError={this.props.newTokenSendingFailed}
+            emailErrorMessage={this.props.errorMessageNewToken}
+          />
         )}
-      </>
+      </div>
     );
   }
 };

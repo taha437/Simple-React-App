@@ -53,20 +53,18 @@ class AuthController {
       throw new ClientError("This email is already registered", 409);
     }
 
-    const passwordSetToken = crypto.randomBytes(20).toString('hex');
-    const passwordSetTokenExpires = Date.now() + 3600000;
     const password = randomize.generateString(12);
 
     const user = new UserModel({
       name: req.body.name,
       email: req.body.email,
       password: await PasswordService.hashPassword(password),
-      email_verified: false,
-      passwordSetToken,
-      passwordSetTokenExpires
+      email_verified: false
     });
 
     await user.save();
+
+    const token = await TokenService.createSetPasswordToken(user);
 
     MailService.sendWithTemplate(
       {
@@ -76,7 +74,7 @@ class AuthController {
       {
         template: "singup",
         data: {
-          link: `${config.frontendHost}/setpassword/${passwordSetToken}`
+          link: `${config.frontendHost}/setpassword/${user._id.toString()}/${token}`
         }
       }
     );
@@ -86,16 +84,24 @@ class AuthController {
 
   @TryCatchErrorDecorator
   static async setPassword(req, res) {
-    const user = await UserModel.findOne({ passwordSetToken: req.body.token });
+    const user = await UserModel.findOne({ _id: req.body.id });
     if (!user) {
-      throw new ClientError("Invalid Token value", 401);
-    } else if (user.passwordSetTokenExpires < Date.now()) {
-      throw new ClientError("Token has expired", 401);
+      throw new ClientError("Token is invalid", 401);
+    }
+
+    const verifyData = await TokenService.verifyRestorePasswordToken(
+      req.body.token,
+      user.password,
+    );
+
+    if (!verifyData) {
+      throw new ClientError("Token has expired or is invalid", 401);
     }
 
     const passwordHash = await PasswordService.hashPassword(req.body.password);
     user.password = passwordHash;
     user.email_verified = true;
+
     await user.save();
 
     res.json({ status: "success" });
@@ -103,51 +109,56 @@ class AuthController {
 
   @TryCatchErrorDecorator
   static async renewPasswordToken(req, res) {
-    const user = await UserModel.findOne({ passwordSetToken: req.body.token });
+    const user = await UserModel.findOne({ _id: req.body.id });
     if (!user) {
-      throw new ClientError("Email Not Found", 404);
+      throw new ClientError("Invalid token", 401);
     }
-    else if (user.email_verified) {
-      throw new ClientError("You have already set your password", 406);
-    }
-    else if (user.passwordSetTokenExpires >= Date.now()) {
+
+    const verifyData = await TokenService.verifyRestorePasswordToken(
+      req.body.token,
+      user.password,
+    );
+
+    if (verifyData) {
       throw new ClientError("Your token is still valid", 406);
     }
-    else {
-      const passwordSetToken = crypto.randomBytes(20).toString('hex');
-      user.passwordSetToken = passwordSetToken;
-      user.passwordSetTokenExpires = Date.now() + 3600000;
 
-      await user.save();
+    const token = await TokenService.createSetPasswordToken(user);
 
-      MailService.sendWithTemplate(
-        {
-          to: user.email,
-          subject: "Your New Token"
-        },
-        {
-          template: "singup",
-          data: {
-            link: `${config.frontendHost}/setpassword/${passwordSetToken}`
-          }
+    MailService.sendWithTemplate(
+      {
+        to: user.email,
+        subject: "Your New Token"
+      },
+      {
+        template: "singup",
+        data: {
+          link: `${config.frontendHost}/setpassword/${user._id}/${token}`
         }
-      );
-      res.json({ status: "success" });
-    }
+      }
+    );
+    res.json({ status: "success" });
   }
 
   @TryCatchErrorDecorator
   static async checkPasswordTokenValidity(req, res) {
-    const user = await UserModel.findOne({ passwordSetToken: req.body.token });
+    const user = await UserModel.findOne({ _id: req.body.id });
     if (!user) {
-      throw new ClientError("Token not found", 404);
+      throw new ClientError("Invalid Token", 404);
     }
     else if (user.email_verified) {
-      throw new ClientError("Token already used", 406);
+      throw new ClientError("You have already set your password", 406);
     }
-    else if (user.passwordSetTokenExpires < Date.now()) {
+
+    const verifyData = await TokenService.verifyRestorePasswordToken(
+      req.body.token,
+      user.password,
+    );
+
+    if (!verifyData) {
       throw new ClientError("Token has expired", 401);
     }
+
     res.json({ status: "success" });
   }
 
@@ -219,6 +230,7 @@ class AuthController {
         template: "restorePassword",
         data: {
           host: config.frontendHost,
+          id: user._id.toString(),
           token
         }
       }
@@ -230,36 +242,53 @@ class AuthController {
   @TryCatchErrorDecorator
   static async confirmRestorePassword(req, res, next) {
     const tokenRequest = req.body.token;
+    const id = req.body.id;
+    const user = await UserModel.findOne({ _id: id });
+
+    if (!user) {
+      throw new ClientError("Refresh token invalid or expired", 400);
+    }
 
     const verifyData = await TokenService.verifyRestorePasswordToken(
-      tokenRequest
+      tokenRequest,
+      user.password,
     );
 
     if (!verifyData) {
       throw new ClientError("Refresh token invalid or expired", 400);
     }
 
-    const user = await UserModel.findOne({ _id: verifyData.id });
-    const password = randomize.generateString(12);
+    // const user = await UserModel.findOne({ _id: verifyData.id });
+    const password = req.body.password;
 
     user.password = await PasswordService.hashPassword(password);
     await user.save();
 
-    MailService.sendWithTemplate(
-      {
-        to: user.email,
-        subject: "New password"
-      },
-      {
-        template: "confirmRestorePassword",
-        data: {
-          password
-        }
-      }
+    res.json({ status: "success" });
+  }
+
+  @TryCatchErrorDecorator
+  static async verifyRestorePasswordToken(req, res, next) {
+    const tokenRequest = req.body.token;
+    const id = req.body.id;
+    const user = await UserModel.findOne({ _id: id });
+
+    if (!user) {
+      throw new ClientError("Refresh token invalid or expired", 400);
+    }
+
+    const verifyData = await TokenService.verifyRestorePasswordToken(
+      tokenRequest,
+      user.password
     );
+
+    if (!verifyData) {
+      throw new ClientError("Refresh token invalid or expired", 400);
+    }
 
     res.json({ status: "success" });
   }
 }
+
 
 export default AuthController;
