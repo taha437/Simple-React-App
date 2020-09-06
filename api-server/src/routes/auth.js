@@ -47,5 +47,10 @@ router.post(
   Validate.prepare(authSchemas.confirmRestorePassword),
   AuthController.confirmRestorePassword
 );
+router.post(
+  "/auth/verify-restore-password-token",
+  Validate.prepare(authSchemas.verifyRestorePasswordToken),
+  AuthController.verifyRestorePasswordToken,
+)
 
 export default router;

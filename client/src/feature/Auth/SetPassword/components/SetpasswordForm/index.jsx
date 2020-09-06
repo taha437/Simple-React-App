@@ -55,10 +55,6 @@ const setPasswordFormComponent = props => {
                 rules={[
                   { required: true, message: "Please enter your Password!" }
                 ]}
-                {...(props.isError && {
-                  help: props.errorMessage,
-                  validateStatus: "error"
-                })}
                 style={{
                   width: "60%",
                   marginLeft: "150px"

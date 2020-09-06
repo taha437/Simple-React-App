@@ -122,16 +122,37 @@ const restorePassword = {
 
 const confirmRestorePassword = {
   type: "object",
-  required: ["token"],
+  required: ["token", "password"],
   properties: {
     token: {
       type: "string",
       errorMessage: {
         type: "Field 'name' should be a string"
       }
+    },
+    password: {
+      type: "string",
+      minLength: 8,
+      errorMessage: {
+        type: "Field 'password' should be a string"
+      }
     }
   }
+
 };
+
+const verifyRestorePasswordToken = {
+  type: "object",
+  required: ["token"],
+  properties: {
+    token: {
+      type: "string",
+      errorMessage: {
+        type: "Field 'token' should be a string"
+      }
+    }
+  }
+}
 
 export default {
   signin,
@@ -141,5 +162,6 @@ export default {
   renewPasswordToken,
   refreshTokens,
   restorePassword,
-  confirmRestorePassword
+  confirmRestorePassword,
+  verifyRestorePasswordToken,
 };

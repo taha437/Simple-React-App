@@ -240,26 +240,29 @@ class AuthController {
     }
 
     const user = await UserModel.findOne({ _id: verifyData.id });
-    const password = randomize.generateString(12);
+    const password = req.body.password;
 
     user.password = await PasswordService.hashPassword(password);
     await user.save();
 
-    MailService.sendWithTemplate(
-      {
-        to: user.email,
-        subject: "New password"
-      },
-      {
-        template: "confirmRestorePassword",
-        data: {
-          password
-        }
-      }
+    res.json({ status: "success" });
+  }
+
+  @TryCatchErrorDecorator
+  static async verifyRestorePasswordToken(req, res, next) {
+    const tokenRequest = req.body.token;
+
+    const verifyData = await TokenService.verifyRestorePasswordToken(
+      tokenRequest
     );
+
+    if (!verifyData) {
+      throw new ClientError("Refresh token invalid or expired", 400);
+    }
 
     res.json({ status: "success" });
   }
 }
+
 
 export default AuthController;
