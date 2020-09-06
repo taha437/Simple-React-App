@@ -4,8 +4,8 @@ import { Row, Col } from "antd";
 
 export const Auth = ({ children }) => {
   return (
-    <div className={style.authLayout}>
-      <Row>
+    <div className={style.animate_area}>
+      <Row style={{ zIndex: 999 }}>
         <Col
           xs={{ span: 14, offset: 5 }}
           sm={{ span: 12, offset: 6 }}
@@ -16,6 +16,18 @@ export const Auth = ({ children }) => {
           {children}
         </Col>
       </Row>
+      <ul className={style.bg_bubbles}>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+      </ul>
     </div>
   );
 };

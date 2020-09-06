@@ -20,10 +20,10 @@ const RestorePasswordFormComponent = props => {
     <Form onSubmit={handleSubmit} className={style.restorePassword}>
       <h1 className={style.authHeader}>Restore password</h1>
       <Form.Item
-        {...props.isError && {
+        {...(props.isError && {
           help: props.errorMessage,
           validateStatus: "error"
-        }}
+        })}
       >
         {getFieldDecorator("email", {
           rules: [
@@ -48,7 +48,7 @@ const RestorePasswordFormComponent = props => {
         </Button>
         <div className={style.singupLinks}>
           <Link to="/">Sign in</Link> or{" "}
-          <Link to="/signup">Create accaunt</Link>
+          <Link to="/signup">Create account</Link>
         </div>
       </Form.Item>
     </Form>
