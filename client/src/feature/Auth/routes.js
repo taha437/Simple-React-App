@@ -23,7 +23,7 @@ export const routes = [
     exact: true
   },
   {
-    path: "/confirm-restore-password/:token",
+    path: "/confirm-restore-password/:id/:token",
     component: ConfirmRestorePasswordContainer,
     isAuth: false,
     exact: true

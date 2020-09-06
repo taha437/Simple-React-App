@@ -13,17 +13,19 @@ class ConfirmRestorePassword extends React.Component {
   componentDidMount() {
     this.props.isAuth && this.props.history.push("/home");
     const token = this.props.match.params.token;
-    this.props.verifyRestorePasswordToken({token: token});
+    const id = this.props.match.params.id;
+    this.props.verifyRestorePasswordToken({ token: token, id: id });
   }
 
   handleSubmit = (values) => {
     const token = this.props.match.params.token;
+    const id = this.props.match.params.id;
     if (values.password != values.confirmPassword) {
       this.setState({ passwordNotMatched: true });
     }
     else {
       this.setState({ passwordNotMatched: false });
-      token && this.props.confirmRestorePasswordRequest({ token: token, password: values.password });
+      token && this.props.confirmRestorePasswordRequest({ token: token, id: id, password: values.password });
     }
   }
 

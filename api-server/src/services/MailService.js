@@ -58,9 +58,9 @@ const compileTemplate = async (template, data, options = {}) => {
 /* eslint no-param-reassign: ["error", { "props": false }] */
 const send = async data => {
   try {
-    if (config.app.isDev) {
-      return await saveEmailInFile(data);
-    }
+    // if (config.app.isDev) {
+    //   return await saveEmailInFile(data);
+    // }
 
     const transporter = nodemailer.createTransport({
       service: "Gmail",

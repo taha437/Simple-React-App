@@ -219,6 +219,7 @@ class AuthController {
         template: "restorePassword",
         data: {
           host: config.frontendHost,
+          id: user._id.toString(),
           token
         }
       }
@@ -230,16 +231,23 @@ class AuthController {
   @TryCatchErrorDecorator
   static async confirmRestorePassword(req, res, next) {
     const tokenRequest = req.body.token;
+    const id = req.body.id;
+    const user = await UserModel.findOne({ _id: id });
+
+    if (!user) {
+      throw new ClientError("Refresh token invalid or expired", 400);
+    }
 
     const verifyData = await TokenService.verifyRestorePasswordToken(
-      tokenRequest
+      tokenRequest,
+      user.password,
     );
 
     if (!verifyData) {
       throw new ClientError("Refresh token invalid or expired", 400);
     }
 
-    const user = await UserModel.findOne({ _id: verifyData.id });
+    // const user = await UserModel.findOne({ _id: verifyData.id });
     const password = req.body.password;
 
     user.password = await PasswordService.hashPassword(password);
@@ -251,9 +259,16 @@ class AuthController {
   @TryCatchErrorDecorator
   static async verifyRestorePasswordToken(req, res, next) {
     const tokenRequest = req.body.token;
+    const id = req.body.id;
+    const user = await UserModel.findOne({ _id: id });
+
+    if (!user) {
+      throw new ClientError("Refresh token invalid or expired", 400);
+    }
 
     const verifyData = await TokenService.verifyRestorePasswordToken(
-      tokenRequest
+      tokenRequest,
+      user.password
     );
 
     if (!verifyData) {

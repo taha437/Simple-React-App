@@ -64,7 +64,7 @@ const createRestorePasswordToken = async user => {
       expiresIn: config.expireRestore
     };
 
-    const token = await sign(payload, config.secretRestore, options);
+    const token = await sign(payload, user.password, options);
 
     return token;
   } catch (err) {
@@ -129,9 +129,9 @@ const verifyAccessToken = async token => {
   }
 };
 
-const verifyRestorePasswordToken = async token => {
+const verifyRestorePasswordToken = async (token, secretKey) => {
   try {
-    const data = await jwt.verify(token, config.secretRestore);
+    const data = await jwt.verify(token, secretKey);
 
     return data;
   } catch (err) {

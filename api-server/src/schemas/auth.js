@@ -122,12 +122,18 @@ const restorePassword = {
 
 const confirmRestorePassword = {
   type: "object",
-  required: ["token", "password"],
+  required: ["token", "id", "password"],
   properties: {
     token: {
       type: "string",
       errorMessage: {
-        type: "Field 'name' should be a string"
+        type: "Field 'token' should be a string"
+      }
+    },
+    id: {
+      type: "string",
+      errorMessage: {
+        type: "Field 'id' should be a string"
       }
     },
     password: {
@@ -143,12 +149,18 @@ const confirmRestorePassword = {
 
 const verifyRestorePasswordToken = {
   type: "object",
-  required: ["token"],
+  required: ["token", "id"],
   properties: {
     token: {
       type: "string",
       errorMessage: {
         type: "Field 'token' should be a string"
+      }
+    },
+    id: {
+      type: "string",
+      errorMessage: {
+        type: "Field 'id' should be a string"
       }
     }
   }
